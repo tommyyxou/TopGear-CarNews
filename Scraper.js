@@ -8,7 +8,7 @@ let cheerio = require("cheerio")
 
 var mongojs = require('mongojs')
 if (process.env.MONGO_URI) {
-    var db = mongojs(process.env.MONGO_URI, ['topGearHeadline']);
+    var db = mongojs('heroku_g37wngbt:30oujek3ij40c6gq1fjjso50pd@ds235708.mlab.com:35708/heroku_g37wngbt', ['topGearHeadline']);
 } else {
     var db = mongojs('TommyDatabase', ['topGearHeadline'])
 }
