@@ -2,7 +2,7 @@
   "name": "topgear-news",
   "version": "1.0.0",
   "description": "",
-  "main": "Scraper.js",
+  "main": "Scraper_mongojs.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node Scraper_mongojs.js"
