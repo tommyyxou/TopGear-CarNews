@@ -1,7 +1,5 @@
 //Scraping
 
-//mongodb://heroku_g37wngbt:30oujek3ij40c6gq1fjjso50pd@ds235708.mlab.com:35708/heroku_g37wngbt
-
 let axios = require("axios")
 let cheerio = require("cheerio")
 
@@ -29,39 +27,23 @@ var topGearHeadline = new Schema({
 
 var headlineModel = mongoose.model('Headline', topGearHeadline);
 
-
 axios.get("https://www.topgear.com/car-news").then(function(response) {
 
     var $ = cheerio.load(response.data);
     
     headlineModel.remove();
-    //db.topGearHeadline.remove();
 
     $("div.teaser__text-content").each(function(i,element){
-        // let headline = "";
-        // let headlineURL = "";
-        // let description = "";
-        // let imageURL = "";
-    
-        // if ($(element).children(".teaser__title").text() != null || undefined || " ") {
-            headline = $(element).children(".teaser__title").text();
-            console.log (headline);
-        // };
         
-        // if ($(element).children(".teaser__title").children().attr("href") != null || undefined || " ") {
-            headlineURL = $(element).children(".teaser__title").children().attr("href");
-            //console.log (headlineURL);
-        // };
+        headline = $(element).children(".teaser__title").text();
+        console.log (headline);
         
-        // if ($(element).children(".teaser__description").children().text() != null || undefined || " ") {
-            description = $(element).children(".teaser__description").children().text();
-            //console.log (description);
-        // };
+        headlineURL = $(element).children(".teaser__title").children().attr("href");
         
-        //if ($(element).parent().children(".teaser__image").children().children().attr("data-srcset") != null) {
-            imageURL = $(element).parent().children(".teaser__image").children().children().attr("data-srcset")//.split(",")
-            //console.log (imageURL);
-        //};
+        description = $(element).children(".teaser__description").children().text();
+            
+        imageURL = $(element).parent().children(".teaser__image").children().children().attr("data-srcset")
+
         
         var TGheadline = new headlineModel({ 
             Headline: headline,
@@ -83,17 +65,6 @@ axios.get("https://www.topgear.com/car-news").then(function(response) {
         //     if (err) return handleError(err,headlineModel);
         //     console.log ();
         //   });
-
-
-        // db.topGearHeadline.insert(
-        //     {
-        //         Headline:headline,
-        //         HeadlineURL: headlineURL,
-        //         Description: description,
-        //         ImageURL: imageURL
-        //     },
-            
-        // );
     });
     console.log ("Data Entered")
 });
@@ -104,7 +75,7 @@ let express = require('express');
 // =============================================================
 let app = express();
 app.use(express.json());
-let PORT = 8080;
+let PORT = process.env.PORT || 8080;
 
 //Handle Bars 
 var exphbs = require("express-handlebars");

@@ -59,7 +59,7 @@ let path = require("path");
 // =============================================================
 let app = express();
 app.use(express.json());
-let PORT = 8080;
+let PORT = process.env.PORT || 8080;
 
 //Handle Bars 
 var exphbs = require("express-handlebars");
