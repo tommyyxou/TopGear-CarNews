@@ -9,26 +9,48 @@ var db = mongojs('TommyDatabase', ['topGearHeadline']);
 
 axios.get("https://www.topgear.com/car-news").then(function(response) {
 
-    //console.log (response);
     var $ = cheerio.load(response.data);
+
+    db.topGearHeadline.remove();
+
+    $("div.teaser__text-content").each(function(i,element){
+        let headline = "";
+        let headlineURL = "";
+        let description = "";
+        let imageURL = "";
     
-    $("a.faux-block-link").each(function(i,element){
-
-        console.log ($(element));
+        // if ($(element).children(".teaser__title").text() != null || undefined || " ") {
+            headline = $(element).children(".teaser__title").text();
+            //console.log (headline);
+        // };
         
-        // let headline = $(element).attr("href");
-        // console.log (headline);
-        // console.log ($(element).text());
-
-        // db.NHLHeadline.insert(
-        //     {
-        //         Headline:headline,
-        //         Link: link
-        //     }
-
-        // );
-        console.log ("Data Entered")
+        // if ($(element).children(".teaser__title").children().attr("href") != null || undefined || " ") {
+            headlineURL = $(element).children(".teaser__title").children().attr("href");
+            //console.log (headlineURL);
+        // };
+        
+        // if ($(element).children(".teaser__description").children().text() != null || undefined || " ") {
+            description = $(element).children(".teaser__description").children().text();
+            //console.log (description);
+        // };
+        
+        //if ($(element).parent().children(".teaser__image").children().children().attr("data-srcset") != null) {
+            imageURL = $(element).parent().children(".teaser__image").children().children().attr("data-srcset")//.split(",")
+            //console.log (imageURL);
+        //};
+        
+        
+        db.topGearHeadline.insert(
+            {
+                Headline:headline,
+                HeadlineURL: headlineURL,
+                Description: description,
+                ImageURL: imageURL
+            },
+            
+        );
     });
+    console.log ("Data Entered")
 });
 
 //Server
@@ -45,8 +67,8 @@ app.engine("handlebars", exphbs({ defaultLayout: "main" }));
 app.set("view engine", "handlebars");
 //Handle Bars
 
-app.get("/NHL/get", function (req, res){
-    db.NHLHeadline.find(function (err, docs) {
+app.get("/", function (req, res){
+    db.topGearHeadline.find(function (err, docs) {
         //res.json(docs);
         //console.log (docs)
         let hbsObject = {data: docs}

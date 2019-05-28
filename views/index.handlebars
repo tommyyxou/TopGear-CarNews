@@ -1,4 +1,13 @@
  {{#each data}}
-    
-    <h4><a href="https://www.NHL.com{{this.Link}}">{{this.Headline}}</a></h4>
+   <div class="row">
+      <div class="col">
+         <h4><a href="https://www.topgear.com{{this.HeadlineURL}}" target="_blank">{{this.Headline}}</a></h4>
+         <h6>{{this.Description}}</h6>
+         <img srcset="{{this.ImageURL}}" 
+               alt="Image not found" 
+               onerror="this.onerror=null;this.src='../assets/images/topGear.jpg';" >
+         </img>
+         <img src="/../assets/images/topGear.jpg"></img>
+      </div>
+   </div>
  {{/each}}
