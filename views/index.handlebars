@@ -1,13 +1,24 @@
  {{#each data}}
+ <section>
    <div class="row">
       <div class="col">
-         <h4><a href="https://www.topgear.com{{this.HeadlineURL}}" target="_blank">{{this.Headline}}</a></h4>
-         <h6>{{this.Description}}</h6>
-         <img srcset="{{this.ImageURL}}" 
-               alt="Image not found" 
-               onerror="this.onerror=null;this.src='../assets/images/topGear.jpg';" >
-         </img>
-         <img src="/../assets/images/topGear.jpg"></img>
+         <div class="post-preview">
+            <a href="https://www.topgear.com{{this.HeadlineURL}}" target="_blank" >
+               <img alt="IMAGE NULL" srcset="{{this.ImageURL}}">
+                  <h2 class="post-title">
+                     {{this.Headline}}
+                  </h2>
+                  <h3 class="post-subtitle">
+                     {{this.Description}}
+                  </h3>
+               </img>
+            </a>
+            <p class="post-meta">
+               Post by {{this.Author}} on {{this.PostDate}}, via https://www.topgear.com/car-news
+            </p>
+         </div>
+         <hr>
       </div>
    </div>
+</section>
  {{/each}}
