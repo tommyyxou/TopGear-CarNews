@@ -10,7 +10,7 @@ var mongojs = require('mongojs')
 if (process.env.MONGO_URI) {
     var db = mongojs(process.env.MONGO_URI, ['topGearHeadline']);
 } else {
-    var db = mongojs('TommyDatabase', ['topGearHeadline']);
+    var db = mongojs('TommyDatabase', ['topGearHeadline'])
 }
 
 
