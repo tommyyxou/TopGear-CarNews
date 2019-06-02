@@ -2,10 +2,10 @@
   "name": "topgear-news",
   "version": "1.0.0",
   "description": "",
-  "main": "Scraper_mongojs.js",
+  "main": "Scraper_mongoose.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node Scraper_mongojs.js"
+    "start": "node Scraper_mongoose.js"
   },
   "author": "",
   "license": "ISC",
