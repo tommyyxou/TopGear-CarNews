@@ -1,15 +1,10 @@
 //Scraping
+const axios = require("axios")
+const cheerio = require("cheerio")
+const mongojs = require('mongojs')
 
-let axios = require("axios")
-let cheerio = require("cheerio")
-var mongojs = require('mongojs')
-
-if (process.env.MONGODB_URI) {
-    var db = mongojs(process.env.MONGODB_URI, ['topGearHeadline']);
-} else {
-    var db = mongojs('TommyDatabase', ['topGearHeadline'])
-}
-
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/TommyDatabase";
+const db = mongojs(MONGODB_URI, ['topGearHeadline']);
 
 axios.get("https://www.topgear.com/car-news").then(function(response) {
 
@@ -46,23 +41,20 @@ axios.get("https://www.topgear.com/car-news").then(function(response) {
                 Author: author,
                 PostDate: postDate
             },
-            
         );
     });
-    console.log ("Data Entered")
 });
 
 //Server
-
-let express = require('express');
-let path = require("path");
+const express = require('express');
+const path = require("path");
 // =============================================================
-let app = express();
+const app = express();
 app.use(express.json());
-let PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 8080;
 
 //Handle Bars 
-var exphbs = require("express-handlebars");
+const exphbs = require("express-handlebars");
 app.engine("handlebars", exphbs({ defaultLayout: "main" }));
 app.set("view engine", "handlebars");
 //Handle Bars

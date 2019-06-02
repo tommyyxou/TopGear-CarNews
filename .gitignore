@@ -3,4 +3,5 @@ node_modules
 npm-debug.log
 .env
 sample.html
+Scraper-mongojs.js
 

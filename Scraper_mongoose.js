@@ -1,103 +1,199 @@
 //Scraping
-
-let axios = require("axios")
-let cheerio = require("cheerio")
-
-
+const axios = require("axios")
+const cheerio = require("cheerio")
 const mongoose = require('mongoose');
-// if (process.env.MONGODB_URI) {
-//     mongoose.connect(process.env.MONGODB_URI, {useNewUrlParser: true});
-// } else {
-    mongoose.connect('mongodb://localhost/TommyDatabase', {useNewUrlParser: true});
-// }
-var db = mongoose.connection;
+
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost/TommyDatabase";
+mongoose.connect(MONGODB_URI, {useNewUrlParser: true});
+mongoose.set('useFindAndModify', false);
+const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
   console.log ("we're connected!")
 });
 
-var Schema = mongoose.Schema;
-
-var topGearHeadline = new Schema({
-    Headline: String,
-    HeadlineURL: String,
-    Description: String,
-    ImageURL: String
-});
-
-var headlineModel = mongoose.model('Headline', topGearHeadline);
+const headlineModel = require ("./headline");
+const commentModel = require ("./comment") 
 
 axios.get("https://www.topgear.com/car-news").then(function(response) {
 
-    var $ = cheerio.load(response.data);
+    let $ = cheerio.load(response.data);
     
-    headlineModel.remove();
+    headlineModel.deleteMany({
+        Favorite:false
+    }).then(function(data){
+        console.log ("old data removed")
+    }).catch(function (err){
+        if (err) return handleError(err);
+    });
 
     $("div.teaser__text-content").each(function(i,element){
         
-        headline = $(element).children(".teaser__title").text();
-        console.log (headline);
-        
-        headlineURL = $(element).children(".teaser__title").children().attr("href");
-        
-        description = $(element).children(".teaser__description").children().text();
+        let headline = $(element).children(".teaser__title").text();
             
-        imageURL = $(element).parent().children(".teaser__image").children().children().attr("data-srcset")
-
+        let headlineURL = $(element).children(".teaser__title").children().attr("href");
         
-        var TGheadline = new headlineModel({ 
+        let description = $(element).children(".teaser__description").children().text();
+        
+        if ($(element).parent().children(".teaser__image").children().children().attr("data-srcset") != null) {
+            imageURL = $(element).parent().children(".teaser__image").children().children().attr("data-srcset");
+        } else if ($(element).parent().children(".teaser__image").children().children().children().attr("data-srcset") != null) {
+            imageURL = $(element).parent().children(".teaser__image").children().children().children().attr("data-srcset");
+        } else {
+            imageURL = $(element).parent().children(".teaser__image").children().children().attr("src");
+        };
+        
+        let author = $(element).children(".teaser__details").children(".teaser__author").text();
+
+        let postDate = $(element).children(".teaser__details").children(".teaser__date").text();
+            
+        headlineModel.create({
             Headline: headline,
             HeadlineURL: headlineURL,
             Description: description,
-            ImageURL: imageURL 
-        });
-            TGheadline.save(function (err) {
+            ImageURL: imageURL,
+            Author: author,
+            PostDate: postDate,
+        }).then(function (data){
+            //console.log (data)
+        }).catch(function (err){
             if (err) return handleError(err);
-            console.log ("saved!")
-            });
-            
-        // headlineModel.create({ 
-        //     Headline: headline,
-        //     HeadlineURL: headlineURL,
-        //     Description: description,
-        //     ImageURL: imageURL 
-        // }, function (err) {
-        //     if (err) return handleError(err,headlineModel);
-        //     console.log ();
-        //   });
+        })
     });
     console.log ("Data Entered")
 });
 
 //Server
 
-let express = require('express');
+const express = require('express');
+const path = require("path");
 // =============================================================
-let app = express();
+const app = express();
 app.use(express.json());
-let PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 8080;
 
 //Handle Bars 
-var exphbs = require("express-handlebars");
+const exphbs = require("express-handlebars");
 app.engine("handlebars", exphbs({ defaultLayout: "main" }));
 app.set("view engine", "handlebars");
 //Handle Bars
 
-app.get("/", function (req, res){
-    var headlineModel = mongoose.model('Headline', topGearHeadline);
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.static(path.join(__dirname)));
+app.use(express.static(__dirname + '/assets'));
 
-    let data = headlineModel.find({ Headline: '*', function(err) {
+
+app.get("/", function (req, res){
+    res.redirect("/Car-news")
+});
+
+app.get("/Car-news", function (req, res){
+
+    headlineModel.find({
+        Favorite:false
+    }).then(function (docs) {
+        let hbsObject = {data: docs};
+        res.render("index", hbsObject)
+    }).catch(function (err){
         if (err) return handleError(err);
-    }
+    })
+});
+
+app.get("/favorite", function (req, res){
+
+    headlineModel.find({
+        Favorite:true
+    }).then(function (headlineDocs) {
+        
+        for (let i = 0; i < headlineDocs.length; i++) {
+            let headline = headlineDocs[i].Headline;
+
+            commentModel.find({
+                Headline: headline
+            }).then(function (docs){
+                let comments = docs
+                let headline = docs[0].Headline;
+                headlineModel.findOneAndUpdate({
+                    Headline: headline,
+                    Favorite:true
+                },{
+                    Comments: comments
+                }).then().catch(function (err3){
+                    if (err3) return handleError(err3);
+                })
+            }).catch(function (err2){
+                if (err2) return handleError(err2);
+            })
+
+            if (i == headlineDocs.length - 1) {
+                display()
+            }
+        };
+    }).catch(function (err1){
+        if (err1) return handleError(err1);
     });
-    console.log (data);
-    // db.topGearHeadline.find(function (err, docs) {
-    //     //res.json(docs);
-    //     //console.log (docs)
-    //     let hbsObject = {data: docs}
-    //     res.render("index", hbsObject);
-    // });
-    
+
+    function display () {
+        headlineModel.find({
+            Favorite:true
+        }).then(function (docs) {
+            let hbsObject = {data: docs};
+        res.render("favorite", hbsObject)
+        }).catch(function (err){
+            if (err) return handleError(err);
+        });
+    }
+
+
+});
+
+app.get("/alreadyInFavorite", function (req, res){
+    res.render("Favorited")
+});
+
+app.post("/favorite/:id/:title", function (req, res){
+    let id = req.params.id
+    let title = req.params.title
+
+    headlineModel.find({
+        Headline:title,
+        Favorite:true
+    }).then(function (data){
+        //console.log (data.length);
+        if (data.length === 0) {
+            headlineModel.findOneAndUpdate({
+                _id:id
+            },{
+                Favorite:true
+            }).then(function (data){
+                res.redirect("/favorite")
+            }).catch( function (err){
+                if (err) return handleError(err);
+            })
+        } else {
+            res.redirect("/alreadyInFavorite")
+            //res.json({"FOUND":"FOUND"})
+        };
+    }); 
+});
+
+app.post("/comment/:headline", function (req, res){
+    let headline = req.params.headline;
+    let author = req.body.author;
+    let comment = req.body.comment;
+
+    commentModel.create({
+        Headline: headline,
+        Author: author,
+        Comment: comment
+    }).then(function (data){
+        //console.log (data)
+    }).catch(function (err){
+        if (err) return handleError(err);
+    });
+
+    res.redirect("/favorite")
 });
 
 app.listen(PORT, function() {
