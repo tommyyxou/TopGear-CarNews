@@ -22,7 +22,6 @@ axios.get("https://www.topgear.com/car-news").then(function(response) {
     headlineModel.deleteMany({
         Favorite:false
     }).then(function(data){
-        //console.log ("old data removed")
     }).catch(function (err){
         if (err) return handleError(err);
     });
@@ -55,7 +54,7 @@ axios.get("https://www.topgear.com/car-news").then(function(response) {
             Author: author,
             PostDate: postDate,
         }).then(function (data){
-            //console.log (data)
+            
         }).catch(function (err){
             if (err) return handleError(err);
         })
@@ -99,42 +98,43 @@ app.get("/Car-news", function (req, res){
     })
 });
 
+
 app.get("/favorite", function (req, res){
 
     headlineModel.find({
         Favorite:true
     }).then(function (headlineDocs) {
-        
-        for (let i = 0; i < headlineDocs.length; i++) {
-            let headline = headlineDocs[i].Headline;
+        if (headlineDocs.length > 0) {
+            for (let i = 0; i < headlineDocs.length; i++) {
+                let headline = headlineDocs[i].Headline;
 
-            commentModel.find({
-                Headline: headline
-            }).then(function (docs){
-                let comments = docs
-                let headline = docs[0].Headline;
-                headlineModel.findOneAndUpdate({
-                    Headline: headline,
-                    Favorite:true
-                },{
-                    Comments: comments
-                },{
-                    new: true
-                }).then(function(docs){
-                    if (i == headlineDocs.length - 1) {
-                        display()
-                    }
-                }).catch(function (err3){
-                    //if (err3) return handleError(err3);
+                commentModel.find({
+                    Headline: headline
+                }).then(function (docs){
+                    if (docs.length > 0) {
+                        let comments = docs
+                        let headline = docs[0].Headline;
+                        headlineModel.findOneAndUpdate({
+                            Headline: headline,
+                            Favorite:true
+                        },{
+                            Comments: comments
+                        }).then( function () {
+                            if (i == headlineDocs.length - 1) {
+                                display()
+                            }
+                        }
+                        ).catch(function (err3){
+                            //if (err3) return handleError(err3);
+                        })
+                    } else {display()};
+                }).catch(function (err2){
+                    //if (err2) return handleError(err2);
                 })
-            }).catch(function (err2){
-                //if (err2) return handleError(err2);
-            })
-
-            
-        };
+            };
+        } else {display()}
     }).catch(function (err1){
-        //if (err1) return handleError(err1);
+        if (err1) return handleError(err1);
     });
 
     function display () {
@@ -142,9 +142,7 @@ app.get("/favorite", function (req, res){
             Favorite:true
         }).then(function (docs) {
             let hbsObject = {data: docs};
-            console.log ("display")
-            console.log (hbsObject);
-            res.render("favorite", hbsObject)
+        res.render("favorite", hbsObject)
         }).catch(function (err){
             if (err) return handleError(err);
         });
@@ -192,7 +190,6 @@ app.post("/comment/:headline", function (req, res){
         Author: author,
         Comment: comment
     }).then(function (data){
-        console.log ("reload page")
         res.redirect("/favorite")
     }).catch(function (err){
         if (err) return handleError(err);
