@@ -140,7 +140,7 @@ app.get("/favorite", function (req, res){
     function display () {
         headlineModel.find({
             Favorite:true
-        }).sort({TimeStamp: 1 }).then(function (docs) {
+        }).then(function (docs) {
             let hbsObject = {data: docs};
         res.render("favorite", hbsObject)
         }).catch(function (err){
