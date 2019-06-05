@@ -11,6 +11,10 @@ body {
   scroll-snap-type: y mandatory;
 }
 
+li.comment {
+  list-style: none;
+}
+
 section {
   padding-top: 5vh;
   scroll-snap-align: center;

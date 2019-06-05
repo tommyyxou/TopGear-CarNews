@@ -39,18 +39,20 @@
                      <div class="modal-body">
                         <ul>
                            {{#each this.Comments}}
-                              <li>
+                              <hr>
+                              <li class="comment">
                                  <p>{{this.Comment}}</p>
                                  <hr>
-                                 <span class="post-meta" style="font-size:smaller;color:grey">By: {{this.Author}} on {{this.PostDate}}</span>
+                                 <span class="post-meta" style="font-size:x-small;color:grey">By: {{this.Author}} on {{this.PostDate}}</span>
                               </li>
+                              <hr>
                            {{/each}}
                         </ul>
                         <form action="/comment/{{this.Headline}}" method="post" id="commentModal{{this._id}}">
-                           <label for="author">Username:</label>
-                           <input type="text" name="author" id="author" placeholder="anonymous" value="anonymous"><br>
-                           <label for="comment">comment:</label>
-                           <textarea name="comment" id="comment" cols="30" rows="10"></textarea>
+                           <label for="author">Username:</label><br>
+                           <input type="text" name="author" id="author" placeholder="Anonymous"><br>
+                           <label for="comment">Comment:</label>
+                           <textarea name="comment" id="comment" rows="3" style="width:100%"></textarea>
                         </form>
                      </div>
                      <div class="modal-footer">

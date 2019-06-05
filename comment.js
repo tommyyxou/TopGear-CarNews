@@ -9,6 +9,7 @@ var commentSchema = new Schema({
   },
   Author: {
     type: String,
+    default:"Anonymous"
   },
   PostDate: {
     type: Date,

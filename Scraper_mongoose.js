@@ -9,7 +9,7 @@ mongoose.set('useFindAndModify', false);
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
-  console.log ("we're connected!")
+  console.log ("DB connected!")
 });
 
 const headlineModel = require ("./headline");
@@ -22,7 +22,7 @@ axios.get("https://www.topgear.com/car-news").then(function(response) {
     headlineModel.deleteMany({
         Favorite:false
     }).then(function(data){
-        console.log ("old data removed")
+        //console.log ("old data removed")
     }).catch(function (err){
         if (err) return handleError(err);
     });
@@ -60,7 +60,7 @@ axios.get("https://www.topgear.com/car-news").then(function(response) {
             if (err) return handleError(err);
         })
     });
-    console.log ("Data Entered")
+    //console.log ("Data Entered")
 });
 
 //Server
@@ -69,7 +69,12 @@ const express = require('express');
 const path = require("path");
 // =============================================================
 const app = express();
+
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname)));
+app.use(express.static(__dirname + '/assets'));
+
 const PORT = process.env.PORT || 8080;
 
 //Handle Bars 
@@ -77,12 +82,6 @@ const exphbs = require("express-handlebars");
 app.engine("handlebars", exphbs({ defaultLayout: "main" }));
 app.set("view engine", "handlebars");
 //Handle Bars
-
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-app.use(express.static(path.join(__dirname)));
-app.use(express.static(__dirname + '/assets'));
-
 
 app.get("/", function (req, res){
     res.redirect("/Car-news")
@@ -119,19 +118,23 @@ app.get("/favorite", function (req, res){
                     Favorite:true
                 },{
                     Comments: comments
-                }).then().catch(function (err3){
-                    if (err3) return handleError(err3);
+                },{
+                    new: true
+                }).then(function(docs){
+                    if (i == headlineDocs.length - 1) {
+                        display()
+                    }
+                }).catch(function (err3){
+                    //if (err3) return handleError(err3);
                 })
             }).catch(function (err2){
-                if (err2) return handleError(err2);
+                //if (err2) return handleError(err2);
             })
 
-            if (i == headlineDocs.length - 1) {
-                display()
-            }
+            
         };
     }).catch(function (err1){
-        if (err1) return handleError(err1);
+        //if (err1) return handleError(err1);
     });
 
     function display () {
@@ -139,13 +142,13 @@ app.get("/favorite", function (req, res){
             Favorite:true
         }).then(function (docs) {
             let hbsObject = {data: docs};
-        res.render("favorite", hbsObject)
+            console.log ("display")
+            console.log (hbsObject);
+            res.render("favorite", hbsObject)
         }).catch(function (err){
             if (err) return handleError(err);
         });
     }
-
-
 });
 
 app.get("/alreadyInFavorite", function (req, res){
@@ -166,6 +169,8 @@ app.post("/favorite/:id/:title", function (req, res){
                 _id:id
             },{
                 Favorite:true
+            },{
+                new:true
             }).then(function (data){
                 res.redirect("/favorite")
             }).catch( function (err){
@@ -173,7 +178,6 @@ app.post("/favorite/:id/:title", function (req, res){
             })
         } else {
             res.redirect("/alreadyInFavorite")
-            //res.json({"FOUND":"FOUND"})
         };
     }); 
 });
@@ -188,12 +192,11 @@ app.post("/comment/:headline", function (req, res){
         Author: author,
         Comment: comment
     }).then(function (data){
-        //console.log (data)
+        console.log ("reload page")
+        res.redirect("/favorite")
     }).catch(function (err){
         if (err) return handleError(err);
     });
-
-    res.redirect("/favorite")
 });
 
 app.listen(PORT, function() {
