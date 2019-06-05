@@ -127,12 +127,18 @@ app.get("/favorite", function (req, res){
                         ).catch(function (err3){
                             //if (err3) return handleError(err3);
                         })
-                    } else {display()};
+                    } else {
+                        if (i == headlineDocs.length - 1) {
+                            display()
+                        }
+                    };
                 }).catch(function (err2){
                     //if (err2) return handleError(err2);
                 })
             };
-        } else {display()}
+        } else {
+            display()
+        }
     }).catch(function (err1){
         if (err1) return handleError(err1);
     });
