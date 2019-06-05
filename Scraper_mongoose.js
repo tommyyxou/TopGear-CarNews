@@ -90,7 +90,7 @@ app.get("/Car-news", function (req, res){
 
     headlineModel.find({
         Favorite:false
-    }).then(function (docs) {
+    }).sort({TimeStamp: 1 }).then(function (docs) {
         let hbsObject = {data: docs};
         res.render("index", hbsObject)
     }).catch(function (err){
@@ -140,7 +140,7 @@ app.get("/favorite", function (req, res){
     function display () {
         headlineModel.find({
             Favorite:true
-        }).then(function (docs) {
+        }).sort({TimeStamp: 1 }).then(function (docs) {
             let hbsObject = {data: docs};
         res.render("favorite", hbsObject)
         }).catch(function (err){

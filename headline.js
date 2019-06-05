@@ -30,6 +30,10 @@ var topGearHeadlineSchema = new Schema({
     type: Boolean,
     default:false
   },
+  TimeStamp: {
+    type:Date,
+    default:Date.now
+  }
 });
 
 var headline = mongoose.model("topGearHeadlines", topGearHeadlineSchema);
